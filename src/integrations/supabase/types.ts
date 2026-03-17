@@ -65,6 +65,134 @@ export type Database = {
           },
         ]
       }
+      contact_connections: {
+        Row: {
+          connected_contact_id: string
+          contact_id: string
+          created_at: string | null
+          id: string
+        }
+        Insert: {
+          connected_contact_id: string
+          contact_id: string
+          created_at?: string | null
+          id?: string
+        }
+        Update: {
+          connected_contact_id?: string
+          contact_id?: string
+          created_at?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_connections_connected_contact_id_fkey"
+            columns: ["connected_contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_connections_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contact_interests: {
+        Row: {
+          contact_id: string
+          created_at: string | null
+          id: string
+          interest_id: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string | null
+          id?: string
+          interest_id: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string | null
+          id?: string
+          interest_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_interests_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_interests_interest_id_fkey"
+            columns: ["interest_id"]
+            isOneToOne: false
+            referencedRelation: "interest_taxonomy"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contact_maturity: {
+        Row: {
+          contact_id: string
+          id: string
+          maturity_level_id: string | null
+          relationship_type_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          contact_id: string
+          id?: string
+          maturity_level_id?: string | null
+          relationship_type_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          contact_id?: string
+          id?: string
+          maturity_level_id?: string | null
+          relationship_type_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_maturity_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_maturity_maturity_level_id_fkey"
+            columns: ["maturity_level_id"]
+            isOneToOne: false
+            referencedRelation: "maturity_level_taxonomy"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_maturity_relationship_type_id_fkey"
+            columns: ["relationship_type_id"]
+            isOneToOne: false
+            referencedRelation: "relationship_type_taxonomy"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_maturity_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_roles: {
         Row: {
           company_name: string | null
@@ -113,6 +241,7 @@ export type Database = {
           job_title: string | null
           last_contacted: string | null
           last_name: string | null
+          linkedin_url: string | null
           notes: string | null
           organization_id: string | null
           owner_id: string | null
@@ -128,6 +257,7 @@ export type Database = {
           job_title?: string | null
           last_contacted?: string | null
           last_name?: string | null
+          linkedin_url?: string | null
           notes?: string | null
           organization_id?: string | null
           owner_id?: string | null
@@ -143,6 +273,7 @@ export type Database = {
           job_title?: string | null
           last_contacted?: string | null
           last_name?: string | null
+          linkedin_url?: string | null
           notes?: string | null
           organization_id?: string | null
           owner_id?: string | null
@@ -166,6 +297,61 @@ export type Database = {
           },
         ]
       }
+      interaction_history: {
+        Row: {
+          contact_id: string
+          created_at: string | null
+          description: string | null
+          id: string
+          interaction_date: string
+          interaction_type: string
+          organization_id: string | null
+          user_id: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          interaction_date?: string
+          interaction_type: string
+          organization_id?: string | null
+          user_id: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          interaction_date?: string
+          interaction_type?: string
+          organization_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interaction_history_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interaction_history_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interaction_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       interest_taxonomy: {
         Row: {
           category: string
@@ -183,6 +369,51 @@ export type Database = {
           label?: string
         }
         Relationships: []
+      }
+      job_seeking_tags: {
+        Row: {
+          comment: string | null
+          contact_id: string
+          created_at: string | null
+          id: string
+          is_job_seeking: boolean
+          tagged_by: string
+          updated_at: string | null
+        }
+        Insert: {
+          comment?: string | null
+          contact_id: string
+          created_at?: string | null
+          id?: string
+          is_job_seeking?: boolean
+          tagged_by: string
+          updated_at?: string | null
+        }
+        Update: {
+          comment?: string | null
+          contact_id?: string
+          created_at?: string | null
+          id?: string
+          is_job_seeking?: boolean
+          tagged_by?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_seeking_tags_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: true
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_seeking_tags_tagged_by_fkey"
+            columns: ["tagged_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       maturity_level_taxonomy: {
         Row: {
