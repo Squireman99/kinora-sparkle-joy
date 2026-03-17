@@ -282,25 +282,94 @@ export default function CompanyDetail() {
 
               {openRoles.map((r) => (
                 <div key={r.id} className="rounded-lg border border-border p-3 space-y-2">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="font-medium text-foreground text-sm">{r.role_label}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        Logged by {r.logged_by_name} · {r.created_at ? format(parseISO(r.created_at), "MMM d, yyyy") : "—"}
-                      </p>
+                  {editingRoleId === r.id ? (
+                    <div className="space-y-3">
+                      <div className="space-y-2">
+                        <Label className="text-xs">Role</Label>
+                        <Select value={editRoleForm.role_taxonomy_id} onValueChange={(v) => setEditRoleForm((f) => ({ ...f, role_taxonomy_id: v }))}>
+                          <SelectTrigger><SelectValue placeholder="Select a role…" /></SelectTrigger>
+                          <SelectContent>
+                            {Object.entries(groupedTaxonomy).map(([group, items]) => (
+                              <SelectGroup key={group}>
+                                <SelectLabel>{group}</SelectLabel>
+                                {items.map((t) => (
+                                  <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
+                                ))}
+                              </SelectGroup>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs">Notes</Label>
+                        <Textarea value={editRoleForm.notes} onChange={(e) => setEditRoleForm((f) => ({ ...f, notes: e.target.value }))} rows={2} />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={async () => {
+                          const { error } = await supabase.from("company_open_roles").update({
+                            role_taxonomy_id: editRoleForm.role_taxonomy_id,
+                            notes: editRoleForm.notes.trim() || null,
+                          }).eq("id", r.id);
+                          if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+                          toast({ title: "Role updated" });
+                          setEditingRoleId(null);
+                          loadData();
+                        }}>Save</Button>
+                        <Button size="sm" variant="outline" onClick={() => setEditingRoleId(null)}>Cancel</Button>
+                      </div>
                     </div>
-                    <Badge variant={statusVariant(r.status)} className="capitalize text-xs">{r.status}</Badge>
-                  </div>
-                  {r.notes && <p className="text-xs text-muted-foreground">{r.notes}</p>}
-                  {r.status === "open" && (
-                    <div className="flex gap-2 pt-1">
-                      <Button size="sm" variant="outline" className="gap-1 text-xs h-7" onClick={() => handleUpdateRoleStatus(r.id, "filled")}>
-                        <CheckCircle className="h-3 w-3" /> Mark Filled
-                      </Button>
-                      <Button size="sm" variant="ghost" className="gap-1 text-xs h-7 text-muted-foreground" onClick={() => handleUpdateRoleStatus(r.id, "cancelled")}>
-                        <XCircle className="h-3 w-3" /> Cancel
-                      </Button>
-                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <p className="font-medium text-foreground text-sm">{r.role_label}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Logged by {r.logged_by_name} · {r.created_at ? format(parseISO(r.created_at), "MMM d, yyyy") : "—"}
+                          </p>
+                        </div>
+                        <Badge variant={statusVariant(r.status)} className="capitalize text-xs">{r.status}</Badge>
+                      </div>
+                      {r.notes && <p className="text-xs text-muted-foreground">{r.notes}</p>}
+                      <div className="flex gap-2 pt-1">
+                        {r.status === "open" && (
+                          <>
+                            <Button size="sm" variant="outline" className="gap-1 text-xs h-7" onClick={() => handleUpdateRoleStatus(r.id, "filled")}>
+                              <CheckCircle className="h-3 w-3" /> Mark Filled
+                            </Button>
+                            <Button size="sm" variant="ghost" className="gap-1 text-xs h-7 text-muted-foreground" onClick={() => handleUpdateRoleStatus(r.id, "cancelled")}>
+                              <XCircle className="h-3 w-3" /> Cancel
+                            </Button>
+                          </>
+                        )}
+                        <Button size="sm" variant="ghost" className="gap-1 text-xs h-7 text-muted-foreground" onClick={() => {
+                          setEditingRoleId(r.id);
+                          setEditRoleForm({ role_taxonomy_id: r.role_taxonomy_id ?? "", notes: r.notes ?? "" });
+                        }}>
+                          <Pencil className="h-3 w-3" /> Edit
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button size="sm" variant="ghost" className="gap-1 text-xs h-7 text-destructive hover:text-destructive">
+                              <Trash2 className="h-3 w-3" /> Remove
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Remove this role?</AlertDialogTitle>
+                              <AlertDialogDescription>This will permanently delete this open role. This action cannot be undone.</AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={async () => {
+                                await supabase.from("company_open_roles").delete().eq("id", r.id);
+                                setOpenRoles((prev) => prev.filter((or) => or.id !== r.id));
+                                toast({ title: "Role removed" });
+                              }}>Remove</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </>
                   )}
                 </div>
               ))}
