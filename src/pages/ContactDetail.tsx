@@ -147,8 +147,46 @@ export default function ContactDetail() {
                 <div className="space-y-1"><Label className="text-xs">Company</Label><Input value={roleForm.company_name} onChange={(e) => setRoleForm((f) => ({ ...f, company_name: e.target.value }))} /></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1"><Label className="text-xs">Start Date</Label><Input type="date" value={roleForm.start_date} onChange={(e) => setRoleForm((f) => ({ ...f, start_date: e.target.value }))} /></div>
-                <div className="space-y-1"><Label className="text-xs">End Date</Label><Input type="date" value={roleForm.end_date} onChange={(e) => setRoleForm((f) => ({ ...f, end_date: e.target.value }))} disabled={roleForm.is_current} /></div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Start Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !roleForm.start_date && "text-muted-foreground")}>
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {roleForm.start_date ? format(parseISO(roleForm.start_date), "PPP") : "Pick a date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={roleForm.start_date ? parseISO(roleForm.start_date) : undefined}
+                        onSelect={(date) => setRoleForm((f) => ({ ...f, start_date: date ? format(date, "yyyy-MM-dd") : "" }))}
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">End Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" disabled={roleForm.is_current} className={cn("w-full justify-start text-left font-normal", !roleForm.end_date && "text-muted-foreground")}>
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {roleForm.end_date ? format(parseISO(roleForm.end_date), "PPP") : "Pick a date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={roleForm.end_date ? parseISO(roleForm.end_date) : undefined}
+                        onSelect={(date) => setRoleForm((f) => ({ ...f, end_date: date ? format(date, "yyyy-MM-dd") : "" }))}
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </div>
               <div className="flex items-center gap-2">
                 <Checkbox checked={roleForm.is_current} onCheckedChange={(v) => setRoleForm((f) => ({ ...f, is_current: !!v, end_date: v ? "" : f.end_date }))} />
