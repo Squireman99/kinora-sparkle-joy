@@ -25,7 +25,6 @@ export default function ContactNew() {
     phone: "",
     job_title: "",
     notes: "",
-    private_school: "",
     owner_id: "",
   });
 
