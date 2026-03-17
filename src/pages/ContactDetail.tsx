@@ -448,15 +448,97 @@ export default function ContactDetail() {
               )}
               {interactions.length === 0 && !showInteractionForm && <p className="text-sm text-muted-foreground">No interactions logged yet.</p>}
               {interactions.map((i) => (
-                <div key={i.id} className="flex items-start gap-3 rounded-lg border border-border p-3">
-                  <span className="text-lg">{interactionTypeIcons[i.interaction_type] ?? "📌"}</span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-foreground capitalize">{i.interaction_type}</p>
-                      <span className="text-xs text-muted-foreground">{format(parseISO(i.interaction_date), "MMM d, yyyy")}</span>
+                <div key={i.id} className="rounded-lg border border-border p-3 space-y-2">
+                  {editingIntId === i.id ? (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <Label className="text-xs">Type</Label>
+                          <Select value={editIntForm.interaction_type} onValueChange={(v) => setEditIntForm((f) => ({ ...f, interaction_type: v }))}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="call">📞 Call</SelectItem>
+                              <SelectItem value="meeting">🤝 Meeting</SelectItem>
+                              <SelectItem value="email">✉️ Email</SelectItem>
+                              <SelectItem value="dinner">🍽️ Dinner</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Date</Label>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button variant="outline" className={cn("w-full justify-start text-left font-normal text-sm")}>
+                                <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                                {editIntForm.interaction_date ? format(parseISO(editIntForm.interaction_date), "PPP") : "Pick a date"}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar mode="single" selected={editIntForm.interaction_date ? parseISO(editIntForm.interaction_date) : undefined} onSelect={(date) => setEditIntForm((f) => ({ ...f, interaction_date: date ? format(date, "yyyy-MM-dd") : "" }))} initialFocus className="p-3 pointer-events-auto" />
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Description</Label>
+                        <Textarea value={editIntForm.description} onChange={(e) => setEditIntForm((f) => ({ ...f, description: e.target.value }))} rows={2} />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={async () => {
+                          const { error } = await supabase.from("interaction_history").update({
+                            interaction_type: editIntForm.interaction_type,
+                            interaction_date: editIntForm.interaction_date,
+                            description: editIntForm.description.trim() || null,
+                          }).eq("id", i.id);
+                          if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+                          toast({ title: "Interaction updated" });
+                          setEditingIntId(null);
+                          setInteractions((prev) => prev.map((x) => x.id === i.id ? { ...x, ...editIntForm, description: editIntForm.description.trim() || null } : x));
+                        }}>Save</Button>
+                        <Button size="sm" variant="outline" onClick={() => setEditingIntId(null)}>Cancel</Button>
+                      </div>
                     </div>
-                    {i.description && <p className="mt-1 text-xs text-muted-foreground">{i.description}</p>}
-                  </div>
+                  ) : (
+                    <div className="flex items-start gap-3">
+                      <span className="text-lg">{interactionTypeIcons[i.interaction_type] ?? "📌"}</span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-medium text-foreground capitalize">{i.interaction_type}</p>
+                          <span className="text-xs text-muted-foreground">{format(parseISO(i.interaction_date), "MMM d, yyyy")}</span>
+                        </div>
+                        {i.description && <p className="mt-1 text-xs text-muted-foreground">{i.description}</p>}
+                        <div className="flex gap-2 mt-2">
+                          <Button size="sm" variant="ghost" className="gap-1 text-xs h-7 text-muted-foreground" onClick={() => {
+                            setEditingIntId(i.id);
+                            setEditIntForm({ interaction_type: i.interaction_type, interaction_date: i.interaction_date, description: i.description ?? "" });
+                          }}>
+                            <Pencil className="h-3 w-3" /> Edit
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button size="sm" variant="ghost" className="gap-1 text-xs h-7 text-destructive hover:text-destructive">
+                                <Trash2 className="h-3 w-3" /> Delete
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete this interaction?</AlertDialogTitle>
+                                <AlertDialogDescription>This will permanently delete this interaction log. This action cannot be undone.</AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={async () => {
+                                  await supabase.from("interaction_history").delete().eq("id", i.id);
+                                  setInteractions((prev) => prev.filter((x) => x.id !== i.id));
+                                  toast({ title: "Interaction deleted" });
+                                }}>Delete</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </CardContent>
