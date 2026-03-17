@@ -76,8 +76,13 @@ export default function ContactDetail() {
   const [allInterests, setAllInterests] = useState<Interest[]>([]);
   const [contactInterestIds, setContactInterestIds] = useState<string[]>([]);
 
-  // Connections
-  const [connections, setConnections] = useState<{ id: string; connected_contact_id: string; first_name: string; last_name: string | null }[]>([]);
+  // Connections (relationships table)
+  const [relationships, setRelationships] = useState<{ id: string; contact_id: string; first_name: string; last_name: string | null; rel_type_label: string }[]>([]);
+  const [showAddConnection, setShowAddConnection] = useState(false);
+  const [connSearch, setConnSearch] = useState("");
+  const [connSearchResults, setConnSearchResults] = useState<{ id: string; first_name: string; last_name: string | null }[]>([]);
+  const [selectedConnContact, setSelectedConnContact] = useState<{ id: string; first_name: string; last_name: string | null } | null>(null);
+  const [selectedRelTypeId, setSelectedRelTypeId] = useState("");
 
   // Job seeking
   const [jobTag, setJobTag] = useState<{ is_job_seeking: boolean; comment: string }>({ is_job_seeking: false, comment: "" });
@@ -98,7 +103,7 @@ export default function ContactDetail() {
       supabase.from("relationship_type_taxonomy").select("*").order("label"),
       supabase.from("interest_taxonomy").select("*").order("label"),
       supabase.from("contact_interests").select("interest_id").eq("contact_id", id),
-      supabase.from("contact_connections").select("id, connected_contact_id").eq("contact_id", id),
+      supabase.from("relationships").select("*").or(`contact_a_id.eq.${id},contact_b_id.eq.${id}`),
       supabase.from("job_seeking_tags").select("*").eq("contact_id", id).maybeSingle(),
       supabase.from("organization_members").select("organization_id").eq("user_id", user.id).limit(1).single(),
     ]);
@@ -120,17 +125,24 @@ export default function ContactDetail() {
       setOwnerName(ownerData?.full_name ?? null);
     }
 
-    // Load connected contacts names
-    const connData = connectionsRes.data ?? [];
-    if (connData.length) {
-      const connIds = connData.map((cc: { connected_contact_id: string }) => cc.connected_contact_id);
-      const { data: connContacts } = await supabase.from("contacts").select("id, first_name, last_name").in("id", connIds);
-      setConnections(connData.map((cc: { id: string; connected_contact_id: string }) => {
-        const found = (connContacts ?? []).find((fc: { id: string }) => fc.id === cc.connected_contact_id);
-        return { ...cc, first_name: found?.first_name ?? "?", last_name: found?.last_name ?? null };
+    // Load relationships
+    const relData = connectionsRes.data ?? [];
+    if (relData.length) {
+      const otherIds = relData.map((r: any) => r.contact_a_id === id ? r.contact_b_id : r.contact_a_id).filter(Boolean);
+      const relTypeIds = relData.map((r: any) => r.relationship_type_id).filter(Boolean);
+      const [contactsRes2, relTypesRes2] = await Promise.all([
+        otherIds.length ? supabase.from("contacts").select("id, first_name, last_name").in("id", otherIds) : { data: [] },
+        relTypeIds.length ? supabase.from("relationship_type_taxonomy").select("id, label").in("id", relTypeIds) : { data: [] },
+      ]);
+      const contactMap = Object.fromEntries((contactsRes2.data ?? []).map((c: any) => [c.id, c]));
+      const relTypeMap = Object.fromEntries((relTypesRes2.data ?? []).map((r: any) => [r.id, r.label]));
+      setRelationships(relData.map((r: any) => {
+        const otherId = r.contact_a_id === id ? r.contact_b_id : r.contact_a_id;
+        const other = contactMap[otherId];
+        return { id: r.id, contact_id: otherId, first_name: other?.first_name ?? "?", last_name: other?.last_name ?? null, rel_type_label: relTypeMap[r.relationship_type_id] ?? "—" };
       }));
     } else {
-      setConnections([]);
+      setRelationships([]);
     }
 
     // Maturity
@@ -620,17 +632,99 @@ export default function ContactDetail() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-lg"><Network className="h-4 w-4 text-primary" /> Connected To</CardTitle>
-              <Button variant="outline" size="sm" className="gap-1" disabled><Plus className="h-3 w-3" /> Add</Button>
+              <Button variant="outline" size="sm" className="gap-1" onClick={() => setShowAddConnection(true)}><Plus className="h-3 w-3" /> Add</Button>
             </CardHeader>
-            <CardContent>
-              {connections.length === 0 ? (
+            <CardContent className="space-y-3">
+              {showAddConnection && (
+                <div className="rounded-lg border border-border p-4 space-y-3">
+                  <div className="space-y-1">
+                    <Label className="text-xs">Search Contact</Label>
+                    <Input
+                      placeholder="Type a name…"
+                      value={connSearch}
+                      onChange={async (e) => {
+                        const q = e.target.value;
+                        setConnSearch(q);
+                        setSelectedConnContact(null);
+                        if (q.length < 2) { setConnSearchResults([]); return; }
+                        const { data } = await supabase.from("contacts").select("id, first_name, last_name").or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%`).neq("id", id!).limit(10);
+                        setConnSearchResults(data ?? []);
+                      }}
+                    />
+                    {connSearchResults.length > 0 && !selectedConnContact && (
+                      <div className="rounded-md border border-border bg-popover max-h-40 overflow-y-auto">
+                        {connSearchResults.map((c) => (
+                          <button key={c.id} className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-secondary/50" onClick={() => {
+                            setSelectedConnContact(c);
+                            setConnSearch(`${c.first_name} ${c.last_name ?? ""}`);
+                            setConnSearchResults([]);
+                          }}>
+                            {c.first_name} {c.last_name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  {selectedConnContact && (
+                    <div className="space-y-1">
+                      <Label className="text-xs">Relationship Type</Label>
+                      <Select value={selectedRelTypeId} onValueChange={setSelectedRelTypeId}>
+                        <SelectTrigger><SelectValue placeholder="Select type…" /></SelectTrigger>
+                        <SelectContent>
+                          {relTypes.map((rt) => (
+                            <SelectItem key={rt.id} value={rt.id}>{rt.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                  <div className="flex gap-2">
+                    <Button size="sm" disabled={!selectedConnContact || !selectedRelTypeId} onClick={async () => {
+                      if (!selectedConnContact || !selectedRelTypeId || !orgId) return;
+                      const { data, error } = await supabase.from("relationships").insert({
+                        contact_a_id: id!, contact_b_id: selectedConnContact.id,
+                        relationship_type_id: selectedRelTypeId, organization_id: orgId,
+                      }).select().single();
+                      if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+                      const rtLabel = relTypes.find((r) => r.id === selectedRelTypeId)?.label ?? "—";
+                      setRelationships((prev) => [...prev, { id: data.id, contact_id: selectedConnContact.id, first_name: selectedConnContact.first_name, last_name: selectedConnContact.last_name, rel_type_label: rtLabel }]);
+                      setShowAddConnection(false); setConnSearch(""); setSelectedConnContact(null); setSelectedRelTypeId("");
+                      toast({ title: "Connection added" });
+                    }}>Save</Button>
+                    <Button size="sm" variant="outline" onClick={() => { setShowAddConnection(false); setConnSearch(""); setSelectedConnContact(null); setSelectedRelTypeId(""); }}>Cancel</Button>
+                  </div>
+                </div>
+              )}
+              {relationships.length === 0 && !showAddConnection ? (
                 <p className="text-sm text-muted-foreground">No connections yet.</p>
               ) : (
                 <div className="space-y-2">
-                  {connections.map((c) => (
-                    <div key={c.id} className="flex items-center gap-2 rounded-lg border border-border p-2.5 text-sm cursor-pointer hover:bg-secondary/50 transition-colors" onClick={() => navigate(`/contacts/${c.connected_contact_id}`)}>
-                      <User className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-foreground">{c.first_name} {c.last_name}</span>
+                  {relationships.map((r) => (
+                    <div key={r.id} className="flex items-center justify-between rounded-lg border border-border p-2.5 text-sm">
+                      <div className="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors" onClick={() => navigate(`/contacts/${r.contact_id}`)}>
+                        <User className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-foreground">{r.first_name} {r.last_name}</span>
+                        <Badge variant="secondary" className="text-xs">{r.rel_type_label}</Badge>
+                      </div>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button size="sm" variant="ghost" className="h-7 text-xs text-destructive hover:text-destructive gap-1"><Trash2 className="h-3 w-3" /> Remove</Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Remove connection?</AlertDialogTitle>
+                            <AlertDialogDescription>This will remove the relationship between these two contacts.</AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={async () => {
+                              await supabase.from("relationships").delete().eq("id", r.id);
+                              setRelationships((prev) => prev.filter((x) => x.id !== r.id));
+                              toast({ title: "Connection removed" });
+                            }}>Remove</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   ))}
                 </div>
