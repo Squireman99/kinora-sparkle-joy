@@ -677,6 +677,62 @@ export type Database = {
         }
         Relationships: []
       }
+      relationships: {
+        Row: {
+          contact_a_id: string | null
+          contact_b_id: string | null
+          created_at: string | null
+          id: string
+          organization_id: string | null
+          relationship_type_id: string | null
+        }
+        Insert: {
+          contact_a_id?: string | null
+          contact_b_id?: string | null
+          created_at?: string | null
+          id?: string
+          organization_id?: string | null
+          relationship_type_id?: string | null
+        }
+        Update: {
+          contact_a_id?: string | null
+          contact_b_id?: string | null
+          created_at?: string | null
+          id?: string
+          organization_id?: string | null
+          relationship_type_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "relationships_contact_a_id_fkey"
+            columns: ["contact_a_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "relationships_contact_b_id_fkey"
+            columns: ["contact_b_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "relationships_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "relationships_relationship_type_id_fkey"
+            columns: ["relationship_type_id"]
+            isOneToOne: false
+            referencedRelation: "relationship_type_taxonomy"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       role_taxonomy: {
         Row: {
           group_name: string
