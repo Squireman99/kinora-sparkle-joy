@@ -247,7 +247,8 @@ export default function ContactDetail() {
           </Button>
           <div>
             <h1 className="text-2xl font-bold text-foreground">{contact.first_name} {contact.last_name}</h1>
-            {contact.job_title && <p className="text-sm text-muted-foreground">{contact.job_title}</p>}
+            {(contact as Contact).company_name && <p className="text-sm text-muted-foreground">{(contact as Contact).company_name}</p>}
+            {contact.job_title && <p className="text-xs text-muted-foreground">{contact.job_title}</p>}
           </div>
         </div>
         {!editing && <Button variant="outline" onClick={() => setEditing(true)}>Edit Contact</Button>}
