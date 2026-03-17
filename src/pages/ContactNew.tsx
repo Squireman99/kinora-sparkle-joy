@@ -40,7 +40,13 @@ export default function ContactNew() {
               const ids = (mData ?? []).map((m) => m.user_id).filter(Boolean) as string[];
               if (ids.length) {
                 supabase.from("profiles").select("id, full_name").in("id", ids)
-                  .then(({ data: pData }) => setMembers((pData ?? []).map((p) => ({ id: p.id, full_name: p.full_name ?? "Unknown" }))));
+                  .then(({ data: pData }) => {
+                    setMembers((pData ?? []).map((p) => ({ id: p.id, full_name: p.full_name ?? "Unknown" })));
+                    // Default owner to current user
+                    if (user && ids.includes(user.id)) {
+                      setForm((f) => ({ ...f, owner_id: user.id }));
+                    }
+                  });
               }
             });
         }
