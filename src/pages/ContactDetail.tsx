@@ -125,17 +125,24 @@ export default function ContactDetail() {
       setOwnerName(ownerData?.full_name ?? null);
     }
 
-    // Load connected contacts names
-    const connData = connectionsRes.data ?? [];
-    if (connData.length) {
-      const connIds = connData.map((cc: { connected_contact_id: string }) => cc.connected_contact_id);
-      const { data: connContacts } = await supabase.from("contacts").select("id, first_name, last_name").in("id", connIds);
-      setConnections(connData.map((cc: { id: string; connected_contact_id: string }) => {
-        const found = (connContacts ?? []).find((fc: { id: string }) => fc.id === cc.connected_contact_id);
-        return { ...cc, first_name: found?.first_name ?? "?", last_name: found?.last_name ?? null };
+    // Load relationships
+    const relData = connectionsRes.data ?? [];
+    if (relData.length) {
+      const otherIds = relData.map((r: any) => r.contact_a_id === id ? r.contact_b_id : r.contact_a_id).filter(Boolean);
+      const relTypeIds = relData.map((r: any) => r.relationship_type_id).filter(Boolean);
+      const [contactsRes2, relTypesRes2] = await Promise.all([
+        otherIds.length ? supabase.from("contacts").select("id, first_name, last_name").in("id", otherIds) : { data: [] },
+        relTypeIds.length ? supabase.from("relationship_type_taxonomy").select("id, label").in("id", relTypeIds) : { data: [] },
+      ]);
+      const contactMap = Object.fromEntries((contactsRes2.data ?? []).map((c: any) => [c.id, c]));
+      const relTypeMap = Object.fromEntries((relTypesRes2.data ?? []).map((r: any) => [r.id, r.label]));
+      setRelationships(relData.map((r: any) => {
+        const otherId = r.contact_a_id === id ? r.contact_b_id : r.contact_a_id;
+        const other = contactMap[otherId];
+        return { id: r.id, contact_id: otherId, first_name: other?.first_name ?? "?", last_name: other?.last_name ?? null, rel_type_label: relTypeMap[r.relationship_type_id] ?? "—" };
       }));
     } else {
-      setConnections([]);
+      setRelationships([]);
     }
 
     // Maturity
