@@ -76,8 +76,13 @@ export default function ContactDetail() {
   const [allInterests, setAllInterests] = useState<Interest[]>([]);
   const [contactInterestIds, setContactInterestIds] = useState<string[]>([]);
 
-  // Connections
-  const [connections, setConnections] = useState<{ id: string; connected_contact_id: string; first_name: string; last_name: string | null }[]>([]);
+  // Connections (relationships table)
+  const [relationships, setRelationships] = useState<{ id: string; contact_id: string; first_name: string; last_name: string | null; rel_type_label: string }[]>([]);
+  const [showAddConnection, setShowAddConnection] = useState(false);
+  const [connSearch, setConnSearch] = useState("");
+  const [connSearchResults, setConnSearchResults] = useState<{ id: string; first_name: string; last_name: string | null }[]>([]);
+  const [selectedConnContact, setSelectedConnContact] = useState<{ id: string; first_name: string; last_name: string | null } | null>(null);
+  const [selectedRelTypeId, setSelectedRelTypeId] = useState("");
 
   // Job seeking
   const [jobTag, setJobTag] = useState<{ is_job_seeking: boolean; comment: string }>({ is_job_seeking: false, comment: "" });
