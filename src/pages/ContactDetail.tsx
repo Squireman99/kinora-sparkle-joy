@@ -24,7 +24,7 @@ import { cn } from "@/lib/utils";
 import type { Tables } from "@/integrations/supabase/types";
 
 // ─── Types ───────────────────────────────────────────────────────
-type Contact = Tables<"contacts"> & { linkedin_url?: string | null };
+type Contact = Tables<"contacts"> & { linkedin_url?: string | null; company_name?: string | null };
 type ContactRole = Tables<"contact_roles">;
 
 interface Interaction {
@@ -158,6 +158,7 @@ export default function ContactDetail() {
       job_title: form.job_title ?? null,
       notes: form.notes ?? null,
       linkedin_url: (form as Contact).linkedin_url ?? null,
+      company_name: (form as Contact).company_name ?? null,
     }).eq("id", id);
     setSaving(false);
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
@@ -247,7 +248,8 @@ export default function ContactDetail() {
           </Button>
           <div>
             <h1 className="text-2xl font-bold text-foreground">{contact.first_name} {contact.last_name}</h1>
-            {contact.job_title && <p className="text-sm text-muted-foreground">{contact.job_title}</p>}
+            {(contact as Contact).company_name && <p className="text-sm text-muted-foreground">{(contact as Contact).company_name}</p>}
+            {contact.job_title && <p className="text-xs text-muted-foreground">{contact.job_title}</p>}
           </div>
         </div>
         {!editing && <Button variant="outline" onClick={() => setEditing(true)}>Edit Contact</Button>}
@@ -269,6 +271,9 @@ export default function ContactDetail() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2"><Label>Job Title</Label><Input value={form.job_title ?? ""} onChange={set("job_title")} /></div>
+                <div className="space-y-2"><Label>Company Name</Label><Input value={(form as Contact).company_name ?? ""} onChange={set("company_name")} /></div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2"><Label>LinkedIn URL</Label><Input value={(form as Contact).linkedin_url ?? ""} onChange={set("linkedin_url")} placeholder="https://linkedin.com/in/..." /></div>
               </div>
               <div className="space-y-2"><Label>Notes</Label><Textarea value={form.notes ?? ""} onChange={set("notes")} rows={3} /></div>
