@@ -12,6 +12,8 @@ import Contacts from "@/pages/Contacts";
 import ContactNew from "@/pages/ContactNew";
 import ContactDetail from "@/pages/ContactDetail";
 import Companies from "@/pages/Companies";
+import CompanyNew from "@/pages/CompanyNew";
+import CompanyDetail from "@/pages/CompanyDetail";
 import RelationshipMap from "@/pages/RelationshipMap";
 import Talent from "@/pages/Talent";
 import SettingsPage from "@/pages/SettingsPage";
