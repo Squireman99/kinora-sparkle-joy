@@ -64,7 +64,7 @@ export default function ContactNew() {
       phone: form.phone.trim() || null,
       job_title: form.job_title.trim() || null,
       notes: form.notes.trim() || null,
-      private_school: form.private_school.trim() || null,
+      private_school: null,
       owner_id: form.owner_id || null,
       organization_id: orgId,
     });
