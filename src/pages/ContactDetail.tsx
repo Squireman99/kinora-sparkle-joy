@@ -270,6 +270,9 @@ export default function ContactDetail() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2"><Label>Job Title</Label><Input value={form.job_title ?? ""} onChange={set("job_title")} /></div>
+                <div className="space-y-2"><Label>Company Name</Label><Input value={(form as Contact).company_name ?? ""} onChange={set("company_name")} /></div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2"><Label>LinkedIn URL</Label><Input value={(form as Contact).linkedin_url ?? ""} onChange={set("linkedin_url")} placeholder="https://linkedin.com/in/..." /></div>
               </div>
               <div className="space-y-2"><Label>Notes</Label><Textarea value={form.notes ?? ""} onChange={set("notes")} rows={3} /></div>
