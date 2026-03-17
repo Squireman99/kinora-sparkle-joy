@@ -63,6 +63,8 @@ export default function ContactDetail() {
   const [interactions, setInteractions] = useState<Interaction[]>([]);
   const [showInteractionForm, setShowInteractionForm] = useState(false);
   const [intForm, setIntForm] = useState({ interaction_type: "call", interaction_date: format(new Date(), "yyyy-MM-dd"), description: "" });
+  const [editingIntId, setEditingIntId] = useState<string | null>(null);
+  const [editIntForm, setEditIntForm] = useState({ interaction_type: "", interaction_date: "", description: "" });
 
   // Relationship / maturity
   const [maturityLevels, setMaturityLevels] = useState<MaturityLevel[]>([]);
