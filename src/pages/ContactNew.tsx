@@ -25,7 +25,6 @@ export default function ContactNew() {
     phone: "",
     job_title: "",
     notes: "",
-    private_school: "",
     owner_id: "",
   });
 
@@ -41,7 +40,13 @@ export default function ContactNew() {
               const ids = (mData ?? []).map((m) => m.user_id).filter(Boolean) as string[];
               if (ids.length) {
                 supabase.from("profiles").select("id, full_name").in("id", ids)
-                  .then(({ data: pData }) => setMembers((pData ?? []).map((p) => ({ id: p.id, full_name: p.full_name ?? "Unknown" }))));
+                  .then(({ data: pData }) => {
+                    setMembers((pData ?? []).map((p) => ({ id: p.id, full_name: p.full_name ?? "Unknown" })));
+                    // Default owner to current user
+                    if (user && ids.includes(user.id)) {
+                      setForm((f) => ({ ...f, owner_id: user.id }));
+                    }
+                  });
               }
             });
         }
@@ -59,7 +64,7 @@ export default function ContactNew() {
       phone: form.phone.trim() || null,
       job_title: form.job_title.trim() || null,
       notes: form.notes.trim() || null,
-      private_school: form.private_school.trim() || null,
+      private_school: null,
       owner_id: form.owner_id || null,
       organization_id: orgId,
     });
@@ -106,10 +111,6 @@ export default function ContactNew() {
             <div className="space-y-2">
               <Label>Job Title</Label>
               <Input value={form.job_title} onChange={set("job_title")} />
-            </div>
-            <div className="space-y-2">
-              <Label>Private School</Label>
-              <Input value={form.private_school} onChange={set("private_school")} />
             </div>
             <div className="space-y-2">
               <Label>Owner</Label>
