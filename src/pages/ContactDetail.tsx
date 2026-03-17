@@ -103,7 +103,7 @@ export default function ContactDetail() {
       supabase.from("relationship_type_taxonomy").select("*").order("label"),
       supabase.from("interest_taxonomy").select("*").order("label"),
       supabase.from("contact_interests").select("interest_id").eq("contact_id", id),
-      supabase.from("contact_connections").select("id, connected_contact_id").eq("contact_id", id),
+      supabase.from("relationships").select("*").or(`contact_a_id.eq.${id},contact_b_id.eq.${id}`),
       supabase.from("job_seeking_tags").select("*").eq("contact_id", id).maybeSingle(),
       supabase.from("organization_members").select("organization_id").eq("user_id", user.id).limit(1).single(),
     ]);
