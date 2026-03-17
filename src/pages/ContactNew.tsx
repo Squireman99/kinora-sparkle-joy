@@ -113,10 +113,6 @@ export default function ContactNew() {
               <Input value={form.job_title} onChange={set("job_title")} />
             </div>
             <div className="space-y-2">
-              <Label>Private School</Label>
-              <Input value={form.private_school} onChange={set("private_school")} />
-            </div>
-            <div className="space-y-2">
               <Label>Owner</Label>
               <Select value={form.owner_id} onValueChange={(v) => setForm((f) => ({ ...f, owner_id: v }))}>
                 <SelectTrigger><SelectValue placeholder="Select owner" /></SelectTrigger>
