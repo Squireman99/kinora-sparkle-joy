@@ -65,6 +65,106 @@ export type Database = {
           },
         ]
       }
+      companies: {
+        Row: {
+          created_at: string | null
+          id: string
+          industry: string | null
+          name: string
+          notes: string | null
+          organization_id: string | null
+          website: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          industry?: string | null
+          name: string
+          notes?: string | null
+          organization_id?: string | null
+          website?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          industry?: string | null
+          name?: string
+          notes?: string | null
+          organization_id?: string | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "companies_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_open_roles: {
+        Row: {
+          company_id: string | null
+          created_at: string | null
+          filled_by_contact_id: string | null
+          id: string
+          logged_by: string | null
+          notes: string | null
+          role_taxonomy_id: string | null
+          status: string
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string | null
+          filled_by_contact_id?: string | null
+          id?: string
+          logged_by?: string | null
+          notes?: string | null
+          role_taxonomy_id?: string | null
+          status?: string
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string | null
+          filled_by_contact_id?: string | null
+          id?: string
+          logged_by?: string | null
+          notes?: string | null
+          role_taxonomy_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_open_roles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_open_roles_filled_by_contact_id_fkey"
+            columns: ["filled_by_contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_open_roles_logged_by_fkey"
+            columns: ["logged_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_open_roles_role_taxonomy_id_fkey"
+            columns: ["role_taxonomy_id"]
+            isOneToOne: false
+            referencedRelation: "role_taxonomy"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_connections: {
         Row: {
           connected_contact_id: string
