@@ -8,8 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, CalendarIcon } from "lucide-react";
+import { format, parseISO } from "date-fns";
+import { cn } from "@/lib/utils";
 import type { Tables } from "@/integrations/supabase/types";
 
 export default function ContactDetail() {
@@ -143,8 +147,46 @@ export default function ContactDetail() {
                 <div className="space-y-1"><Label className="text-xs">Company</Label><Input value={roleForm.company_name} onChange={(e) => setRoleForm((f) => ({ ...f, company_name: e.target.value }))} /></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1"><Label className="text-xs">Start Date</Label><Input type="date" value={roleForm.start_date} onChange={(e) => setRoleForm((f) => ({ ...f, start_date: e.target.value }))} /></div>
-                <div className="space-y-1"><Label className="text-xs">End Date</Label><Input type="date" value={roleForm.end_date} onChange={(e) => setRoleForm((f) => ({ ...f, end_date: e.target.value }))} disabled={roleForm.is_current} /></div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Start Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !roleForm.start_date && "text-muted-foreground")}>
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {roleForm.start_date ? format(parseISO(roleForm.start_date), "PPP") : "Pick a date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={roleForm.start_date ? parseISO(roleForm.start_date) : undefined}
+                        onSelect={(date) => setRoleForm((f) => ({ ...f, start_date: date ? format(date, "yyyy-MM-dd") : "" }))}
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">End Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" disabled={roleForm.is_current} className={cn("w-full justify-start text-left font-normal", !roleForm.end_date && "text-muted-foreground")}>
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {roleForm.end_date ? format(parseISO(roleForm.end_date), "PPP") : "Pick a date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={roleForm.end_date ? parseISO(roleForm.end_date) : undefined}
+                        onSelect={(date) => setRoleForm((f) => ({ ...f, end_date: date ? format(date, "yyyy-MM-dd") : "" }))}
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </div>
               <div className="flex items-center gap-2">
                 <Checkbox checked={roleForm.is_current} onCheckedChange={(v) => setRoleForm((f) => ({ ...f, is_current: !!v, end_date: v ? "" : f.end_date }))} />
@@ -167,7 +209,7 @@ export default function ContactDetail() {
                 <p className="font-medium text-foreground">{r.title}</p>
                 {r.company_name && <p className="text-sm text-muted-foreground">{r.company_name}</p>}
                 <p className="text-xs text-muted-foreground mt-1">
-                  {r.start_date ?? "?"} — {r.is_current ? "Present" : r.end_date ?? "?"}
+                  {r.start_date ? format(parseISO(r.start_date), "MMM yyyy") : "?"} — {r.is_current ? "Present" : r.end_date ? format(parseISO(r.end_date), "MMM yyyy") : "?"}
                 </p>
               </div>
               {r.is_current && <Badge>Current</Badge>}
