@@ -15,7 +15,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import {
-  ArrowLeft, Plus, CalendarIcon, Mail, Phone, User, Clock,
+  ArrowLeft, Plus, CalendarIcon, Mail, Phone, User, Clock, Building2,
   Linkedin, FileText, Briefcase, MessageSquare, Heart, Tags,
   Network, Target, X,
 } from "lucide-react";
