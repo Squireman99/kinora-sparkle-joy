@@ -17,8 +17,9 @@ import { useToast } from "@/hooks/use-toast";
 import {
   ArrowLeft, Plus, CalendarIcon, Mail, Phone, User, Clock, Building2,
   Linkedin, FileText, Briefcase, MessageSquare, Heart, Tags,
-  Network, Target, X,
+  Network, Target, X, Pencil, Trash2,
 } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { format, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 import type { Tables } from "@/integrations/supabase/types";
