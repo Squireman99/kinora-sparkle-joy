@@ -15,7 +15,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import {
-  ArrowLeft, Plus, CalendarIcon, Mail, Phone, User, Clock,
+  ArrowLeft, Plus, CalendarIcon, Mail, Phone, User, Clock, Building2,
   Linkedin, FileText, Briefcase, MessageSquare, Heart, Tags,
   Network, Target, X,
 } from "lucide-react";
@@ -310,6 +310,10 @@ export default function ContactDetail() {
                 <div className="flex items-start gap-2">
                   <Clock className="mt-0.5 h-4 w-4 text-muted-foreground shrink-0" />
                   <div><dt className="text-xs text-muted-foreground">Last Contacted</dt><dd className="text-foreground">{contact.last_contacted ? format(parseISO(contact.last_contacted), "PPP") : "—"}</dd></div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Building2 className="mt-0.5 h-4 w-4 text-muted-foreground shrink-0" />
+                  <div><dt className="text-xs text-muted-foreground">Company</dt><dd className="text-foreground">{(contact as Contact).company_name || "—"}</dd></div>
                 </div>
                 <div className="flex items-start gap-2 col-span-2">
                   <Linkedin className="mt-0.5 h-4 w-4 text-muted-foreground shrink-0" />
