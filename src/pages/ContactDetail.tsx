@@ -311,6 +311,10 @@ export default function ContactDetail() {
                   <Clock className="mt-0.5 h-4 w-4 text-muted-foreground shrink-0" />
                   <div><dt className="text-xs text-muted-foreground">Last Contacted</dt><dd className="text-foreground">{contact.last_contacted ? format(parseISO(contact.last_contacted), "PPP") : "—"}</dd></div>
                 </div>
+                <div className="flex items-start gap-2">
+                  <Building2 className="mt-0.5 h-4 w-4 text-muted-foreground shrink-0" />
+                  <div><dt className="text-xs text-muted-foreground">Company</dt><dd className="text-foreground">{(contact as Contact).company_name || "—"}</dd></div>
+                </div>
                 <div className="flex items-start gap-2 col-span-2">
                   <Linkedin className="mt-0.5 h-4 w-4 text-muted-foreground shrink-0" />
                   <div className="min-w-0"><dt className="text-xs text-muted-foreground">LinkedIn</dt><dd className="text-foreground truncate">{(contact as Contact).linkedin_url ? <a href={(contact as Contact).linkedin_url!} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{(contact as Contact).linkedin_url}</a> : "—"}</dd></div>
