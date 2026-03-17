@@ -158,6 +158,7 @@ export default function ContactDetail() {
       job_title: form.job_title ?? null,
       notes: form.notes ?? null,
       linkedin_url: (form as Contact).linkedin_url ?? null,
+      company_name: (form as Contact).company_name ?? null,
     }).eq("id", id);
     setSaving(false);
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
