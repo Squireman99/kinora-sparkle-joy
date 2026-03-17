@@ -24,7 +24,7 @@ import { cn } from "@/lib/utils";
 import type { Tables } from "@/integrations/supabase/types";
 
 // ─── Types ───────────────────────────────────────────────────────
-type Contact = Tables<"contacts"> & { linkedin_url?: string | null };
+type Contact = Tables<"contacts"> & { linkedin_url?: string | null; company_name?: string | null };
 type ContactRole = Tables<"contact_roles">;
 
 interface Interaction {
