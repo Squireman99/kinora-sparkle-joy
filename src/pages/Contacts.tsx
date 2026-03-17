@@ -84,7 +84,7 @@ export default function Contacts() {
                     </TableCell>
                     <TableCell>{c.last_name}</TableCell>
                     <TableCell>{c.job_title}</TableCell>
-                    <TableCell>—</TableCell>
+                    <TableCell>{(c as any).company_name ?? "—"}</TableCell>
                     <TableCell>{c.owner_id ? profiles[c.owner_id] ?? "—" : "—"}</TableCell>
                     <TableCell>{c.last_contacted ?? "—"}</TableCell>
                   </TableRow>
