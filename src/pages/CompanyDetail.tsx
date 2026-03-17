@@ -65,6 +65,8 @@ export default function CompanyDetail() {
 
   const [showRoleForm, setShowRoleForm] = useState(false);
   const [roleForm, setRoleForm] = useState({ role_taxonomy_id: "", notes: "" });
+  const [editingRoleId, setEditingRoleId] = useState<string | null>(null);
+  const [editRoleForm, setEditRoleForm] = useState({ role_taxonomy_id: "", notes: "" });
 
   const loadData = useCallback(async () => {
     if (!id) return;
