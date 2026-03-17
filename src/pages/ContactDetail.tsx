@@ -209,7 +209,7 @@ export default function ContactDetail() {
                 <p className="font-medium text-foreground">{r.title}</p>
                 {r.company_name && <p className="text-sm text-muted-foreground">{r.company_name}</p>}
                 <p className="text-xs text-muted-foreground mt-1">
-                  {r.start_date ?? "?"} — {r.is_current ? "Present" : r.end_date ?? "?"}
+                  {r.start_date ? format(parseISO(r.start_date), "MMM yyyy") : "?"} — {r.is_current ? "Present" : r.end_date ? format(parseISO(r.end_date), "MMM yyyy") : "?"}
                 </p>
               </div>
               {r.is_current && <Badge>Current</Badge>}
