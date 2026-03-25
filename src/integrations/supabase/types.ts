@@ -343,6 +343,7 @@ export type Database = {
           last_contacted: string | null
           last_name: string | null
           linkedin_url: string | null
+          location: string | null
           notes: string | null
           organization_id: string | null
           owner_id: string | null
@@ -360,6 +361,7 @@ export type Database = {
           last_contacted?: string | null
           last_name?: string | null
           linkedin_url?: string | null
+          location?: string | null
           notes?: string | null
           organization_id?: string | null
           owner_id?: string | null
@@ -377,6 +379,7 @@ export type Database = {
           last_contacted?: string | null
           last_name?: string | null
           linkedin_url?: string | null
+          location?: string | null
           notes?: string | null
           organization_id?: string | null
           owner_id?: string | null

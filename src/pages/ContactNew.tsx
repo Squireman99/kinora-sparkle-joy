@@ -17,6 +17,7 @@ export default function ContactNew() {
   const [submitting, setSubmitting] = useState(false);
   const [orgId, setOrgId] = useState<string | null>(null);
   const [members, setMembers] = useState<{ id: string; full_name: string }[]>([]);
+  const [companies, setCompanies] = useState<{ id: string; name: string }[]>([]);
 
   const [form, setForm] = useState({
     first_name: "",
@@ -24,8 +25,10 @@ export default function ContactNew() {
     email: "",
     phone: "",
     job_title: "",
+    location: "",
     notes: "",
     owner_id: "",
+    company_id: "",
   });
 
   useEffect(() => {
@@ -34,6 +37,9 @@ export default function ContactNew() {
       .then(({ data }) => {
         if (data) {
           setOrgId(data.organization_id);
+          // Load companies for dropdown
+          supabase.from("companies").select("id, name").eq("organization_id", data.organization_id!).order("name")
+            .then(({ data: cData }) => setCompanies((cData ?? []).map((c) => ({ id: c.id, name: c.name }))));
           // Load org members for owner dropdown
           supabase.from("organization_members").select("user_id").eq("organization_id", data.organization_id!)
             .then(({ data: mData }) => {
@@ -57,16 +63,20 @@ export default function ContactNew() {
     e.preventDefault();
     if (!form.first_name.trim()) { toast({ title: "First name is required", variant: "destructive" }); return; }
     setSubmitting(true);
+    const selectedCompany = companies.find((c) => c.id === form.company_id);
     const { error } = await supabase.from("contacts").insert({
       first_name: form.first_name.trim(),
       last_name: form.last_name.trim() || null,
       email: form.email.trim() || null,
       phone: form.phone.trim() || null,
       job_title: form.job_title.trim() || null,
+      location: form.location.trim() || null,
       notes: form.notes.trim() || null,
       private_school: null,
       owner_id: form.owner_id || null,
       organization_id: orgId,
+      company_id: form.company_id || null,
+      company_name: selectedCompany?.name ?? null,
     });
     setSubmitting(false);
     if (error) {
@@ -108,9 +118,26 @@ export default function ContactNew() {
                 <Input value={form.phone} onChange={set("phone")} />
               </div>
             </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Job Title</Label>
+                <Input value={form.job_title} onChange={set("job_title")} />
+              </div>
+              <div className="space-y-2">
+                <Label>Company</Label>
+                <Select value={form.company_id} onValueChange={(v) => setForm((f) => ({ ...f, company_id: v }))}>
+                  <SelectTrigger><SelectValue placeholder="Select company" /></SelectTrigger>
+                  <SelectContent>
+                    {companies.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
             <div className="space-y-2">
-              <Label>Job Title</Label>
-              <Input value={form.job_title} onChange={set("job_title")} />
+              <Label>Location</Label>
+              <Input value={form.location} onChange={set("location")} placeholder="City, Country" />
             </div>
             <div className="space-y-2">
               <Label>Owner</Label>

@@ -67,6 +67,7 @@ export default function Contacts() {
                 <TableHead>Last Name</TableHead>
                 <TableHead>Job Title</TableHead>
                 <TableHead>Company</TableHead>
+                <TableHead>Location</TableHead>
                 <TableHead>Owner</TableHead>
                 <TableHead>Last Contacted</TableHead>
               </TableRow>
@@ -74,7 +75,7 @@ export default function Contacts() {
             <TableBody>
               {filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground">No contacts found</TableCell>
+                  <TableCell colSpan={7} className="text-center text-muted-foreground">No contacts found</TableCell>
                 </TableRow>
               ) : (
                 filtered.map((c) => (
@@ -85,6 +86,7 @@ export default function Contacts() {
                     <TableCell>{c.last_name}</TableCell>
                     <TableCell>{c.job_title}</TableCell>
                     <TableCell>{(c as any).company_name ?? "—"}</TableCell>
+                    <TableCell>{(c as any).location ?? "—"}</TableCell>
                     <TableCell>{c.owner_id ? profiles[c.owner_id] ?? "—" : "—"}</TableCell>
                     <TableCell>{c.last_contacted ?? "—"}</TableCell>
                   </TableRow>

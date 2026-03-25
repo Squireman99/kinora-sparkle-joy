@@ -17,7 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   ArrowLeft, Plus, CalendarIcon, Mail, Phone, User, Clock, Building2,
   Linkedin, FileText, Briefcase, MessageSquare, Heart, Tags,
-  Network, Target, X, Pencil, Trash2,
+  Network, Target, X, Pencil, Trash2, MapPin,
 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { format, parseISO } from "date-fns";
@@ -174,6 +174,7 @@ export default function ContactDetail() {
       notes: form.notes ?? null,
       linkedin_url: (form as Contact).linkedin_url ?? null,
       company_name: (form as Contact).company_name ?? null,
+      location: (form as Contact).location ?? null,
     }).eq("id", id);
     setSaving(false);
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
@@ -290,6 +291,7 @@ export default function ContactDetail() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2"><Label>LinkedIn URL</Label><Input value={(form as Contact).linkedin_url ?? ""} onChange={set("linkedin_url")} placeholder="https://linkedin.com/in/..." /></div>
+                <div className="space-y-2"><Label>Location</Label><Input value={(form as Contact).location ?? ""} onChange={set("location")} placeholder="City, Country" /></div>
               </div>
               <div className="space-y-2"><Label>Notes</Label><Textarea value={form.notes ?? ""} onChange={set("notes")} rows={3} /></div>
               <div className="flex gap-3">
@@ -333,6 +335,10 @@ export default function ContactDetail() {
                 <div className="flex items-start gap-2 col-span-2">
                   <Linkedin className="mt-0.5 h-4 w-4 text-muted-foreground shrink-0" />
                   <div className="min-w-0"><dt className="text-xs text-muted-foreground">LinkedIn</dt><dd className="text-foreground truncate">{(contact as Contact).linkedin_url ? <a href={(contact as Contact).linkedin_url!} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{(contact as Contact).linkedin_url}</a> : "—"}</dd></div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <MapPin className="mt-0.5 h-4 w-4 text-muted-foreground shrink-0" />
+                  <div><dt className="text-xs text-muted-foreground">Location</dt><dd className="text-foreground">{(contact as Contact).location || "—"}</dd></div>
                 </div>
                 <div className="flex items-start gap-2 col-span-2">
                   <FileText className="mt-0.5 h-4 w-4 text-muted-foreground shrink-0" />
